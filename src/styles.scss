@@ -1,1 +1,88 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --primary:        #285943;
+  --primary-dark:   #193B28;
+  --primary-light:  #8DAF76;
+  --accent:         #D99B42;
+  --danger:         #ba1a1a;
+  --background:     #FAFAF6;
+  --surface:        #F2EBDD;
+  --surface-white:  #ffffff;
+  --text:           #2C3531;
+  --muted:          #5E6D62;
+  --border:         #E8E4DA;
+  --radius-sm:      0.5rem;
+  --radius-md:      0.75rem;
+  --radius-lg:      1rem;
+  --radius-full:    9999px;
+  --shadow-sm:      0 4px 16px -2px rgba(40,89,67,0.08), 0 2px 6px -1px rgba(40,89,67,0.04);
+  --shadow-md:      0 8px 30px rgba(40,89,67,0.10);
+  --font-heading:   'Playfair Display', serif;
+  --font-body:      'Plus Jakarta Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--background);
+  color: var(--text);
+}
+
+h1, h2, h3, h4 { font-family: var(--font-heading); }
+
+img { max-width: 100%; display: block; }
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s;
+}
+.btn-outline:hover { background: rgba(40,89,67,0.06); }
+
+.btn-accent {
+  background: var(--accent);
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-accent:hover { opacity: 0.9; }
+
+.badge {
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+  letter-spacing: 0.03em;
+}
