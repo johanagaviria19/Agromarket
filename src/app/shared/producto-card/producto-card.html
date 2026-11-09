@@ -1,0 +1,22 @@
+<div class="card">
+  <div class="card__img-wrap">
+    <img [src]="producto.imagen" [alt]="producto.nombre" class="card__img">
+    <span class="badge categoria-badge">{{ producto.categoria }}</span>
+    <button
+      class="btn-fav"
+      type="button"
+      (click)="onToggleFavorito($event)"
+      [class.activo]="esFavorito"
+      aria-label="Marcar como favorito">
+      ♥
+    </button>
+  </div>
+
+  <div class="card__body">
+    <h3 class="card__nombre">{{ producto.nombre }}</h3>
+    <p class="card__precio">{{ formatearPrecio(producto.precio) }}</p>
+    <p class="card__muted">{{ producto.cantidadDisponible }} {{ producto.unidad }} disponibles</p>
+    <p class="card__muted">📍 {{ producto.municipio }}</p>
+    <a [routerLink]="['/producto', producto.id]" class="btn-primary card__link">Ver producto</a>
+  </div>
+</div>

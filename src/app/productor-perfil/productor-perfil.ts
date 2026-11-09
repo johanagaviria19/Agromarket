@@ -1,13 +1,46 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+import { ProductosService } from '../services/productos.service';
+import { FavoritosService } from '../services/favoritos.service';
+import { PRODUCTORES_MOCK } from '../data/mock-data';
+import { Productor } from '../models/productor.model';
+import { Producto } from '../models/producto.model';
+import { ProductoCard } from '../shared/producto-card/producto-card';
 
 @Component({
   selector: 'app-productor-perfil',
   standalone: true,
-  template: `
-    <div style="padding:4rem 1.5rem; text-align:center; font-family:var(--font-body)">
-      <h2 style="font-family:var(--font-heading); color:var(--primary-dark)">Perfil del Productor</h2>
-      <p style="color:var(--muted); margin-top:0.5rem">Componente en construcción.</p>
-    </div>
-  `
+  imports: [CommonModule, RouterLink, ProductoCard],
+  templateUrl: './productor-perfil.html',
+  styleUrl: './productor-perfil.scss'
 })
-export class ProductorPerfil {}
+export class ProductorPerfil implements OnInit {
+  private route = inject(ActivatedRoute);
+  private productosService = inject(ProductosService);
+  private favoritosService = inject(FavoritosService);
+
+  productor = signal<Productor | null>(null);
+  productosDelProductor = signal<Producto[]>([]);
+
+  ngOnInit(): void {
+    const raw = this.route.snapshot.paramMap.get('id');
+    const id = Number(raw);
+    if (!raw || isNaN(id)) return;
+    const p = PRODUCTORES_MOCK.find(pr => pr.id === id);
+    if (!p) return;
+    this.productor.set(p);
+    const productos = this.productosService.productos().filter(
+      pr => pr.productorId === id && pr.activo
+    );
+    this.productosDelProductor.set(productos);
+  }
+
+  onToggleFavorito(id: number): void {
+    this.favoritosService.toggle(id);
+  }
+
+  contactar(): void {
+    alert('Funcionalidad de contacto próximamente');
+  }
+}

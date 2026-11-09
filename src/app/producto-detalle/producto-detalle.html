@@ -1,0 +1,74 @@
+<div class="detalle-page">
+  <a routerLink="/catalogo" class="btn-outline back-link">← Volver al catálogo</a>
+
+  @if (producto()) {
+    <div class="detalle-layout">
+      <!-- LEFT: image -->
+      <div class="detalle-imagen">
+        <img [src]="producto()!.imagen" [alt]="producto()!.nombre" class="imagen-principal">
+      </div>
+
+      <!-- RIGHT: info + form -->
+      <div class="detalle-info">
+        <span class="badge">{{ producto()!.categoria }}</span>
+        <h1>{{ producto()!.nombre }}</h1>
+        <p class="descripcion">{{ producto()!.descripcion }}</p>
+        <p class="muted">📍 {{ producto()!.municipio }}, {{ producto()!.departamento }}</p>
+        <p class="muted">Actualizado: {{ producto()!.fechaActualizacion }}</p>
+
+        <p class="precio">{{ formatearPrecio(producto()!.precio) }} / {{ producto()!.unidad }}</p>
+        <p class="stock">{{ producto()!.cantidadDisponible }} {{ producto()!.unidad }} disponibles</p>
+
+        <!-- Solicitar compra -->
+        <section class="solicitud-section">
+          <h2>Solicitar compra</h2>
+          <form [formGroup]="solicitudForm" (ngSubmit)="enviarSolicitud()">
+            <div class="form-group">
+              <label for="cantidad">Cantidad ({{ producto()!.unidad }})</label>
+              <input
+                id="cantidad"
+                type="number"
+                formControlName="cantidad"
+                min="1"
+                [max]="producto()!.cantidadDisponible"
+                (input)="onCantidadChange($event)">
+            </div>
+
+            <p class="subtotal">Subtotal: <strong>{{ formatearPrecio(subtotal()) }}</strong></p>
+
+            <div class="form-group">
+              <label for="notas">Notas para el productor (opcional)</label>
+              <textarea
+                id="notas"
+                formControlName="notas"
+                rows="3"
+                placeholder="Instrucciones especiales, empaque, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="solicitudForm.invalid">
+              Enviar solicitud
+            </button>
+          </form>
+        </section>
+
+        @if (mensajeExito()) {
+          <div class="exito">{{ mensajeExito() }}</div>
+        }
+
+        <!-- Información del productor -->
+        <section class="productor-section">
+          <h2>Información del productor</h2>
+          @if (productorDelProducto) {
+            <p><strong>Nombre:</strong> {{ productorDelProducto.nombre }}</p>
+            <p><strong>Municipio:</strong> {{ productorDelProducto.municipio }}, {{ productorDelProducto.departamento }}</p>
+          } @else {
+            <p><strong>Municipio:</strong> {{ producto()!.municipio }}</p>
+          }
+          <a [routerLink]="['/productor', producto()!.productorId]" class="btn-outline">
+            Ver perfil del productor →
+          </a>
+        </section>
+      </div>
+    </div>
+  }
+</div>
