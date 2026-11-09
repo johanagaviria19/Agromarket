@@ -31,7 +31,7 @@
     } @else {
       <div class="productos-grid">
         @for (p of productosDelProductor(); track p.id) {
-          <app-producto-card [producto]="p"></app-producto-card>
+          <app-producto-card [producto]="p" (toggleFavorito)="onToggleFavorito($event)"></app-producto-card>
         }
       </div>
     }

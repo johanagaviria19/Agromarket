@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ProductosService } from '../services/productos.service';
+import { FavoritosService } from '../services/favoritos.service';
 import { PRODUCTORES_MOCK } from '../data/mock-data';
 import { Productor } from '../models/productor.model';
 import { Producto } from '../models/producto.model';
@@ -17,6 +18,7 @@ import { ProductoCard } from '../shared/producto-card/producto-card';
 export class ProductorPerfil implements OnInit {
   private route = inject(ActivatedRoute);
   private productosService = inject(ProductosService);
+  private favoritosService = inject(FavoritosService);
 
   productor = signal<Productor | null>(null);
   productosDelProductor = signal<Producto[]>([]);
@@ -32,6 +34,10 @@ export class ProductorPerfil implements OnInit {
       pr => pr.productorId === id && pr.activo
     );
     this.productosDelProductor.set(productos);
+  }
+
+  onToggleFavorito(id: number): void {
+    this.favoritosService.toggle(id);
   }
 
   contactar(): void {

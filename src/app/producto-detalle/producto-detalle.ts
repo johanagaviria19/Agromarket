@@ -5,6 +5,7 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ProductosService } from '../services/productos.service';
 import { SolicitudesService } from '../services/solicitudes.service';
 import { Producto } from '../models/producto.model';
+import { PRODUCTORES_MOCK } from '../data/mock-data';
 
 @Component({
   selector: 'app-producto-detalle',
@@ -86,5 +87,11 @@ export class ProductoDetalle implements OnInit {
       notas: this.solicitudForm.value.notas ?? ''
     });
     this.mensajeExito.set('¡Solicitud enviada con éxito! El productor se pondrá en contacto contigo.');
+  }
+
+  get productorDelProducto() {
+    const p = this.producto();
+    if (!p) return null;
+    return PRODUCTORES_MOCK.find(pr => pr.id === p.productorId) ?? null;
   }
 }

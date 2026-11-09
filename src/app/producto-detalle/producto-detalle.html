@@ -58,8 +58,12 @@
         <!-- Información del productor -->
         <section class="productor-section">
           <h2>Información del productor</h2>
-          <p><strong>ID Productor:</strong> {{ producto()!.productorId }}</p>
-          <p><strong>Municipio:</strong> {{ producto()!.municipio }}</p>
+          @if (productorDelProducto) {
+            <p><strong>Nombre:</strong> {{ productorDelProducto.nombre }}</p>
+            <p><strong>Municipio:</strong> {{ productorDelProducto.municipio }}, {{ productorDelProducto.departamento }}</p>
+          } @else {
+            <p><strong>Municipio:</strong> {{ producto()!.municipio }}</p>
+          }
           <a [routerLink]="['/productor', producto()!.productorId]" class="btn-outline">
             Ver perfil del productor →
           </a>
