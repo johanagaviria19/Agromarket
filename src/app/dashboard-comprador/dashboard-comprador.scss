@@ -1,0 +1,244 @@
+:host {
+  display: block;
+}
+
+.dash {
+  display: flex;
+  min-height: calc(100vh - 64px);
+  background: var(--background);
+  font-family: var(--font-body);
+}
+
+/* ── Sidebar ── */
+.dash__sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--primary-dark);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dash__logo {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--surface-white);
+  text-decoration: none;
+  padding: 0 0.5rem;
+}
+
+.dash__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dash__menu button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dash__menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--surface-white);
+}
+
+.dash__menu button.active {
+  background: var(--primary);
+  color: var(--surface-white);
+}
+
+/* ── Contenido ── */
+.dash__content {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem;
+}
+
+.dash__title {
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Tarjetas de estadísticas ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.stat-card {
+  background: var(--surface-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stat-card__icon { font-size: 1.6rem; }
+.stat-card__value {
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  color: var(--primary);
+}
+.stat-card__label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Tablas ── */
+.tabla-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-white);
+  font-size: 0.875rem;
+}
+
+.tabla th {
+  background: var(--surface);
+  color: var(--primary-dark);
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.tabla__nombre { font-weight: 600; }
+
+/* ── Grid de favoritos ── */
+.fav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.fav-card {
+  background: var(--surface-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.fav-card__img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.fav-card__body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fav-card__nombre {
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.fav-card__precio {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.fav-card__acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+/* ── Botones pequeños ── */
+.btn-mini {
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  display: inline-block;
+}
+
+.btn-mini--danger {
+  background: var(--surface);
+  color: var(--danger);
+  border: 1px solid rgba(186, 26, 26, 0.3);
+}
+.btn-mini--danger:hover { background: rgba(186, 26, 26, 0.08); }
+
+/* ── Badges de estado ── */
+.badge-pendiente { background: rgba(217, 155, 66, 0.15); color: #8C5E18; }
+.badge-aceptada  { background: rgba(40, 89, 67, 0.12);   color: #193B28; }
+.badge-rechazada { background: rgba(186, 26, 26, 0.10);  color: #93000a; }
+.badge-finalizada{ background: var(--border);            color: var(--muted); }
+
+/* ── Estado vacío ── */
+.vacio {
+  background: var(--surface-white);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.vacio__btn {
+  display: inline-block;
+  margin-top: 1rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dash { flex-direction: column; }
+
+  .dash__sidebar {
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .dash__menu {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .dash__menu button { white-space: nowrap; }
+
+  .dash__content { padding: 1.25rem; }
+}

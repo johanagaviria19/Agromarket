@@ -1,0 +1,225 @@
+<div class="dash">
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="dash__sidebar">
+    <a class="dash__logo" routerLink="/">🌿 AgroMarket</a>
+    <nav class="dash__menu">
+      <button type="button" [class.active]="seccionActiva() === 'resumen'" (click)="seccionActiva.set('resumen')">
+        📊 Resumen
+      </button>
+      <button type="button" [class.active]="seccionActiva() === 'mis-productos'" (click)="seccionActiva.set('mis-productos')">
+        📦 Mis productos
+      </button>
+      <button type="button" [class.active]="seccionActiva() === 'publicar'" (click)="seccionActiva.set('publicar')">
+        ➕ Publicar producto
+      </button>
+      <button type="button" [class.active]="seccionActiva() === 'solicitudes'" (click)="seccionActiva.set('solicitudes')">
+        🧾 Solicitudes
+      </button>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════ CONTENIDO ═══════════════ -->
+  <main class="dash__content">
+    @if (mensajePublicacion()) {
+      <div class="alerta-exito">{{ mensajePublicacion() }}</div>
+    }
+
+    @switch (seccionActiva()) {
+
+      <!-- ── RESUMEN ── -->
+      @case ('resumen') {
+        <h2 class="dash__title">Resumen</h2>
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-card__icon">📦</span>
+            <span class="stat-card__value">{{ totalProductos() }}</span>
+            <span class="stat-card__label">Total productos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__icon">✅</span>
+            <span class="stat-card__value">{{ productosActivos() }}</span>
+            <span class="stat-card__label">Productos activos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__icon">⚠️</span>
+            <span class="stat-card__value">{{ productosAgotados() }}</span>
+            <span class="stat-card__label">Productos agotados</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__icon">🧾</span>
+            <span class="stat-card__value">{{ solicitudesPendientes() }}</span>
+            <span class="stat-card__label">Solicitudes pendientes</span>
+          </div>
+        </div>
+      }
+
+      <!-- ── MIS PRODUCTOS ── -->
+      @case ('mis-productos') {
+        <h2 class="dash__title">Mis productos</h2>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Imagen</th>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Disponible</th>
+                <th>Municipio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of productos(); track p.id) {
+                <tr>
+                  <td><img class="tabla__img" [src]="p.imagen" [alt]="p.nombre"></td>
+                  <td class="tabla__nombre">{{ p.nombre }}</td>
+                  <td>{{ formatearPrecio(p.precio) }}</td>
+                  <td>{{ p.cantidadDisponible }} {{ p.unidad }}</td>
+                  <td>{{ p.municipio }}</td>
+                  <td>
+                    <span class="badge" [class.badge-activo]="p.activo" [class.badge-inactivo]="!p.activo">
+                      {{ p.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td class="tabla__acciones">
+                    <button type="button" class="btn-mini btn-mini--ghost" (click)="editarProducto()">Editar</button>
+                    <button type="button" class="btn-mini" (click)="toggleActivo(p.id, p.activo)">
+                      {{ p.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                    <button type="button" class="btn-mini btn-mini--danger" (click)="eliminarProducto(p.id)">Eliminar</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ── PUBLICAR ── -->
+      @case ('publicar') {
+        <h2 class="dash__title">Publicar producto</h2>
+        <form class="form" [formGroup]="productoForm" (ngSubmit)="publicarProducto()">
+          <div class="form__grid">
+            <div class="form__field">
+              <label for="nombre">Nombre del producto</label>
+              <input id="nombre" type="text" formControlName="nombre" placeholder="Ej: Papa Pastusa Seleccionada">
+              @if (productoForm.controls.nombre.invalid && productoForm.controls.nombre.touched) {
+                <span class="form__error">El nombre es obligatorio (mínimo 3 caracteres).</span>
+              }
+            </div>
+
+            <div class="form__field">
+              <label for="municipio">Municipio</label>
+              <input id="municipio" type="text" formControlName="municipio" placeholder="Ej: Pasto">
+              @if (productoForm.controls.municipio.invalid && productoForm.controls.municipio.touched) {
+                <span class="form__error">El municipio es obligatorio.</span>
+              }
+            </div>
+
+            <div class="form__field">
+              <label for="categoria">Categoría</label>
+              <select id="categoria" formControlName="categoria">
+                <option value="" disabled>Selecciona una categoría</option>
+                @for (cat of categorias; track cat) {
+                  <option [value]="cat">{{ cat }}</option>
+                }
+              </select>
+              @if (productoForm.controls.categoria.invalid && productoForm.controls.categoria.touched) {
+                <span class="form__error">La categoría es obligatoria.</span>
+              }
+            </div>
+
+            <div class="form__field">
+              <label for="unidad">Unidad de medida</label>
+              <select id="unidad" formControlName="unidad">
+                @for (u of unidades; track u) {
+                  <option [value]="u">{{ u }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form__field">
+              <label for="precio">Precio (COP)</label>
+              <input id="precio" type="number" formControlName="precio" min="1" placeholder="Ej: 3200">
+              @if (productoForm.controls.precio.invalid && productoForm.controls.precio.touched) {
+                <span class="form__error">El precio debe ser mayor a 0.</span>
+              }
+            </div>
+
+            <div class="form__field">
+              <label for="cantidadDisponible">Cantidad disponible</label>
+              <input id="cantidadDisponible" type="number" formControlName="cantidadDisponible" min="1" placeholder="Ej: 500">
+              @if (productoForm.controls.cantidadDisponible.invalid && productoForm.controls.cantidadDisponible.touched) {
+                <span class="form__error">La cantidad debe ser mayor a 0.</span>
+              }
+            </div>
+
+            <div class="form__field form__field--full">
+              <label for="descripcion">Descripción</label>
+              <textarea id="descripcion" formControlName="descripcion" placeholder="Describe tu producto, su calidad y origen"></textarea>
+              @if (productoForm.controls.descripcion.invalid && productoForm.controls.descripcion.touched) {
+                <span class="form__error">La descripción es obligatoria.</span>
+              }
+            </div>
+
+            <div class="form__field form__field--full">
+              <label for="imagen">URL de la imagen (opcional)</label>
+              <input id="imagen" type="text" formControlName="imagen" placeholder="https://...">
+            </div>
+          </div>
+
+          <div class="form__submit">
+            <button type="submit" class="btn-primary" [disabled]="productoForm.invalid">Publicar producto</button>
+          </div>
+        </form>
+      }
+
+      <!-- ── SOLICITUDES ── -->
+      @case ('solicitudes') {
+        <h2 class="dash__title">Solicitudes recibidas</h2>
+        @if (solicitudes().length === 0) {
+          <div class="vacio">
+            <p>Aún no has recibido solicitudes de compra.</p>
+          </div>
+        } @else {
+          <div class="tabla-wrap">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of solicitudes(); track s.id) {
+                  <tr>
+                    <td class="tabla__nombre">{{ getNombreProducto(s.productoId) }}</td>
+                    <td>{{ s.cantidad }}</td>
+                    <td>{{ formatearPrecio(s.subtotal) }}</td>
+                    <td>{{ s.fecha }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getClaseEstado(s.estado)">{{ s.estado }}</span>
+                    </td>
+                    <td class="tabla__acciones">
+                      @if (s.estado === 'pendiente') {
+                        <button type="button" class="btn-mini" (click)="cambiarEstadoSolicitud(s.id, 'aceptada')">Aceptar</button>
+                        <button type="button" class="btn-mini btn-mini--danger" (click)="cambiarEstadoSolicitud(s.id, 'rechazada')">Rechazar</button>
+                      } @else {
+                        <span class="tabla__muted">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+  </main>
+</div>

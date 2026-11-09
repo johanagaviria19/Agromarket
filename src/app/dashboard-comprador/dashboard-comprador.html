@@ -1,0 +1,112 @@
+<div class="dash">
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="dash__sidebar">
+    <a class="dash__logo" routerLink="/">🌿 AgroMarket</a>
+    <nav class="dash__menu">
+      <button type="button" [class.active]="seccionActiva() === 'resumen'" (click)="seccionActiva.set('resumen')">
+        📊 Resumen
+      </button>
+      <button type="button" [class.active]="seccionActiva() === 'favoritos'" (click)="seccionActiva.set('favoritos')">
+        ♥ Mis favoritos
+      </button>
+      <button type="button" [class.active]="seccionActiva() === 'solicitudes'" (click)="seccionActiva.set('solicitudes')">
+        🧾 Mis solicitudes
+      </button>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════ CONTENIDO ═══════════════ -->
+  <main class="dash__content">
+    @switch (seccionActiva()) {
+
+      <!-- ── RESUMEN ── -->
+      @case ('resumen') {
+        <h2 class="dash__title">Resumen</h2>
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-card__icon">🧾</span>
+            <span class="stat-card__value">{{ totalSolicitudes() }}</span>
+            <span class="stat-card__label">Total solicitudes</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__icon">⏳</span>
+            <span class="stat-card__value">{{ pendientesCount() }}</span>
+            <span class="stat-card__label">Solicitudes pendientes</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__icon">♥</span>
+            <span class="stat-card__value">{{ totalFavoritos() }}</span>
+            <span class="stat-card__label">Productos favoritos</span>
+          </div>
+        </div>
+      }
+
+      <!-- ── FAVORITOS ── -->
+      @case ('favoritos') {
+        <h2 class="dash__title">Mis favoritos</h2>
+        @if (productosFavoritos().length === 0) {
+          <div class="vacio">
+            <p>Todavía no tienes productos favoritos.</p>
+            <a class="btn-primary vacio__btn" routerLink="/catalogo">Explorar catálogo</a>
+          </div>
+        } @else {
+          <div class="fav-grid">
+            @for (p of productosFavoritos(); track p.id) {
+              <div class="fav-card">
+                <img class="fav-card__img" [src]="p.imagen" [alt]="p.nombre">
+                <div class="fav-card__body">
+                  <h3 class="fav-card__nombre">{{ p.nombre }}</h3>
+                  <p class="fav-card__precio">{{ formatearPrecio(p.precio) }}</p>
+                  <div class="fav-card__acciones">
+                    <a class="btn-primary btn-mini" [routerLink]="['/producto', p.id]">Ver producto</a>
+                    <button type="button" class="btn-mini btn-mini--danger" (click)="quitarFavorito(p.id)">Quitar</button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ── SOLICITUDES ── -->
+      @case ('solicitudes') {
+        <h2 class="dash__title">Mis solicitudes</h2>
+        @if (solicitudesList().length === 0) {
+          <div class="vacio">
+            <p>Aún no has realizado ninguna solicitud de compra.</p>
+            <a class="btn-primary vacio__btn" routerLink="/catalogo">Explorar catálogo</a>
+          </div>
+        } @else {
+          <div class="tabla-wrap">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Productor</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of solicitudesList(); track s.id) {
+                  <tr>
+                    <td class="tabla__nombre">{{ getNombreProducto(s.productoId) }}</td>
+                    <td>{{ getNombreProductor(s.productorId) }}</td>
+                    <td>{{ s.cantidad }}</td>
+                    <td>{{ formatearPrecio(s.subtotal) }}</td>
+                    <td>{{ s.fecha }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getClaseEstado(s.estado)">{{ s.estado }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    }
+  </main>
+</div>
