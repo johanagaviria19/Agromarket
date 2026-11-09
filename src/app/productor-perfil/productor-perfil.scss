@@ -1,0 +1,152 @@
+.portada {
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.portada-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.foto-perfil {
+  position: absolute;
+  bottom: -50px;
+  left: 2rem;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--surface-white);
+  object-fit: cover;
+  z-index: 1;
+}
+
+.perfil-info {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 70px 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  h1 {
+    font-family: var(--font-heading);
+    color: var(--primary-dark);
+    margin: 0;
+    font-size: 1.75rem;
+  }
+
+  .badge {
+    display: inline-block;
+    text-transform: capitalize;
+  }
+
+  .ubicacion {
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .descripcion {
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0;
+  }
+}
+
+.lista-produtos {
+  padding-left: 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.lista-productos {
+  padding-left: 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.lotes-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  .numero {
+    font-size: 2rem;
+    color: var(--primary);
+    font-weight: 700;
+    font-family: var(--font-heading);
+  }
+
+  .lotes-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+}
+
+.productos-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  h2 {
+    font-family: var(--font-heading);
+    color: var(--primary-dark);
+    margin: 0 0 1.5rem;
+  }
+}
+
+.productos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.sin-productos {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem;
+}
+
+.not-found {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+
+  p {
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .perfil-info {
+    padding: 70px 1rem 1.5rem;
+  }
+
+  .produtos-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .productos-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .productos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .productos-grid {
+    grid-template-columns: 1fr;
+  }
+}

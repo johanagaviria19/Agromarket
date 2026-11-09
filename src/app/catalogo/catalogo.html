@@ -1,0 +1,88 @@
+<div class="catalogo-page">
+  <header class="catalogo-header">
+    <h1>Catálogo de Productos</h1>
+  </header>
+
+  <div class="catalogo-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2 class="sidebar__title">Filtros</h2>
+
+      <div class="filter-group">
+        <label for="busqueda">Buscar</label>
+        <input
+          id="busqueda"
+          type="text"
+          class="filtro-input"
+          placeholder="Nombre o descripción..."
+          [value]="busqueda()"
+          (input)="busqueda.set($any($event.target).value)">
+      </div>
+
+      <div class="filter-group">
+        <label for="categoria">Categoría</label>
+        <select
+          id="categoria"
+          class="filtro-select"
+          [value]="categoriaSeleccionada()"
+          (change)="categoriaSeleccionada.set($any($event.target).value)">
+          <option value="">Todas las categorías</option>
+          @for (cat of categorias; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="municipio">Municipio</label>
+        <select
+          id="municipio"
+          class="filtro-select"
+          [value]="municipioSeleccionado()"
+          (change)="municipioSeleccionado.set($any($event.target).value)">
+          <option value="">Todos los municipios</option>
+          @for (mun of municipios; track mun) {
+            <option [value]="mun">{{ mun }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="ordenamiento">Ordenar por</label>
+        <select
+          id="ordenamiento"
+          class="filtro-select"
+          [value]="ordenamiento()"
+          (change)="ordenamiento.set($any($event.target).value)">
+          <option value="nombre">Nombre</option>
+          <option value="precio-asc">Precio: menor a mayor</option>
+          <option value="precio-desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+
+      <button class="btn-outline" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </aside>
+
+    <!-- PRODUCTS AREA -->
+    <main class="productos-area">
+      <p class="resultados-count">{{ totalResultados() }} productos encontrados</p>
+
+      @if (totalResultados() === 0) {
+        <div class="empty-state">
+          <p>No se encontraron productos con estos filtros.</p>
+          <button class="btn-outline" (click)="limpiarFiltros()">Limpiar filtros</button>
+          <a routerLink="/" class="btn-primary">Volver al inicio</a>
+        </div>
+      } @else {
+        <div class="productos-grid">
+          @for (producto of productosFiltrados(); track producto.id) {
+            <app-producto-card
+              [producto]="producto"
+              (toggleFavorito)="onToggleFavorito($event)">
+            </app-producto-card>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>

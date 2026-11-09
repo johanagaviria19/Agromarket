@@ -1,0 +1,44 @@
+@if (productor()) {
+  <div class="portada" [style.backgroundImage]="'url(' + productor()!.fotoPortada + ')'">
+    <div class="portada-overlay"></div>
+    <img class="foto-perfil" [src]="productor()!.fotoPerfil" [alt]="productor()!.nombre">
+  </div>
+
+  <div class="perfil-info">
+    <h1>{{ productor()!.nombre }}</h1>
+    <span class="badge">{{ productor()!.tipo }}</span>
+    <p class="ubicacion">{{ productor()!.municipio }}, {{ productor()!.departamento }}</p>
+    <p class="descripcion">{{ productor()!.descripcion }}</p>
+
+    <ul class="lista-productos">
+      @for (prod of productor()!.productos; track prod) {
+        <li>{{ prod }}</li>
+      }
+    </ul>
+
+    <div class="lotes-counter">
+      <span class="numero">{{ productor()!.lotesEntregados }}</span>
+      <span class="lotes-label">lotes entregados</span>
+    </div>
+
+    <button class="btn-primary" type="button" (click)="contactar()">Contactar</button>
+  </div>
+
+  <section class="productos-section">
+    <h2>Productos disponibles</h2>
+    @if (productosDelProductor().length === 0) {
+      <p class="sin-productos">Este productor no tiene productos disponibles en este momento.</p>
+    } @else {
+      <div class="productos-grid">
+        @for (p of productosDelProductor(); track p.id) {
+          <app-producto-card [producto]="p"></app-producto-card>
+        }
+      </div>
+    }
+  </section>
+} @else {
+  <div class="not-found">
+    <p>Productor no encontrado.</p>
+    <a routerLink="/catalogo" class="btn-outline">Volver al catálogo</a>
+  </div>
+}
