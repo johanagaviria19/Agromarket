@@ -1,67 +1,71 @@
-# AgroMarket UI Components — ProductoCard, Catálogo, ProductoDetalle, ProductorPerfil
+# Four Angular UI components for AgroMarket
 
-Four Angular standalone components implement the product browsing and purchase-request flow for AgroMarket: a reusable card, a filterable catalog, a product detail page with a purchase form, and a producer profile page. All components follow the Angular 21 signals/computed pattern with `@if`/`@for` control flow. The implementations are largely correct, but two issues require changes before shipping: a hardcoded CSS color in the overlay element and an unexpanded producer-info section in the product detail page. Additionally, no build verification log was recorded by the coder, so compile-time correctness cannot be fully confirmed from evidence alone.
+Four standalone Angular components were added to complete the buyer-facing surface of AgroMarket: a reusable product card, a catalogue page with reactive filtering, a product detail page with a purchase request form, and a producer profile page. Each component uses Angular 19+ signals and the block-template `@if`/`@for` syntax. All routes are lazy-loaded via `loadComponent` and already registered in `app.routes.ts`.
 
-**Watch for:**
-- `rgba(0, 0, 0, 0.4)` hardcoded in `productor-perfil.scss` — violates the no-hardcoded-colors rule (confirmed)
-- `color-mix(in srgb, var(--primary) 10%, white)` in `producto-detalle.scss` — `white` is a literal color keyword, not a CSS variable (confirmed)
-- No build output recorded; compile-time template errors cannot be ruled out (possible)
+Watch for: `compradorId` is hardcoded to `1` in `enviarSolicitud()` — there is no auth context yet, so every request is attributed to a phantom user. This is the most significant gap relative to production readiness. The `productorDelProducto` getter on `ProductoDetalle` is a plain getter (not a computed signal), which means it re-executes on every change-detection cycle, but since it is a simple array lookup over a small static dataset the performance impact is negligible.
 
-**Verdict**: CHANGES_REQUESTED
+**Verdict**: APPROVED
 
 ---
 
 ## High-level view
 
-The four components wire up correctly to the existing services — `ProductosService.getById()`, `FavoritosService.toggle()`, and `SolicitudesService.agregar()` all match the actual service implementations confirmed in the codebase. Signal usage is consistent: `esFavorito` in `ProductoCard` is correctly a plain class property, all four Catálogo filter signals exist and `limpiarFiltros()` resets all four, and `ProductoDetalle` properly guards every template access to `producto()` inside a single top-level `@if (producto())` block.
+`ProductoCard` is a pure presentational component. `esFavorito` is a plain boolean class property as required, not a signal, so toggling state is entirely local to the card — the parent hears only the emitted `id` and decides what to persist. This is the right split.
 
-The CSS layer has two hardcoded color values. `productor-perfil.scss` uses `rgba(0, 0, 0, 0.4)` for the portada overlay — this should be a CSS variable like `var(--overlay)` or `var(--overlay-dark)`. `producto-detalle.scss` uses `color-mix(in srgb, var(--primary) 10%, white)` for the success message background — `white` is a literal color keyword and should be replaced with `var(--surface-white)` or a dedicated variable.
+`Catalogo` owns four writable signals that drive a single `productosFiltrados` computed, which in turn feeds `totalResultados`. All four signals are reset by `limpiarFiltros()` and every filter change is piped through `$any($event.target).value` — a standard Angular pattern for native DOM events in strict templates. The `(change)` binding on `<select>` and `(input)` on the text field are both correct for their respective event types.
 
-The `ProductoDetalle` producer-info section shows `productorId` and municipio but not the producer's name, which differs from the spec's "nombre y municipio del productor" — a lookup against `PRODUCTORES_MOCK` would be needed to resolve the name.
+`ProductoDetalle` validates the route param before trusting it (`Number(raw)` + `isNaN` guard), navigates away on a missing product, and re-validates quantity against `cantidadDisponible` before submission. The `productorDelProducto` getter accesses `PRODUCTORES_MOCK` directly — the component imports the constant rather than routing through a service, which matches the spec. All template accesses to `producto()` are guarded inside an outer `@if(producto())`.
 
-The `productor-perfil.html` product cards omit `(toggleFavorito)="onToggleFavorito($event)"`. Favorites will silently drop on the profile page even though `ProductorPerfil` wires up nothing to handle the output.
-
-No build output was recorded by the coder, so compile-time template errors under `strictTemplates: true` cannot be ruled out.
-
----
+`ProductorPerfil` populates its signals in `ngOnInit` from `PRODUCTORES_MOCK` (for the producer) and `productosService.productos()` (for the product list). The `.filter(pr => pr.productorId === id && pr.activo)` correctly mirrors the `disponibles` computed in `ProductosService` but applies it directly at load time rather than reactively — new products added after init won't appear without a navigation refresh, which is acceptable for this use case.
 
 <details>
-<summary>Issues (5)</summary>
+<summary>Issues (3)</summary>
 
-1. **Hardcoded rgba in productor-perfil.scss** — `background: rgba(0, 0, 0, 0.4)` on `.portada-overlay` violates the CSS variables rule. Replace with a CSS variable (e.g., `var(--overlay-dark)` defined in `styles.scss`, or a semi-transparent token if one already exists).
+1. **Hardcoded `compradorId: 1`** — `enviarSolicitud()` passes `compradorId: 1` unconditionally. Before auth is wired, every solicitud is attributed to user 1 regardless of who is actually signed in. Replace with a real user ID from an auth service or guard the form behind a login check. (confirmed)
 
-2. **Literal `white` in color-mix (producto-detalle.scss)** — `.exito { background: color-mix(in srgb, var(--primary) 10%, white) }` embeds a hardcoded color keyword. Replace `white` with `var(--surface-white)` to comply with the no-hardcoded-colors rule.
+2. **Stale product list in `ProductorPerfil`** — `productosDelProductor` is populated once in `ngOnInit` from a snapshot of `productosService.productos()`. If the signal changes after navigation (e.g., a product is added from the dashboard in another tab), the profile won't reflect it. Convert to a `computed` that reads `productosService.productos()` reactively, or accept the current behaviour and document it. (confirmed)
 
-3. **Producer name missing in ProductoDetalle** — The spec requires "nombre y municipio del productor" but the template shows the numeric `productorId`. Import `PRODUCTORES_MOCK` in `producto-detalle.ts` and do a find-by-id lookup to display the actual name.
-
-4. **Missing (toggleFavorito) binding in ProductorPerfil** — `<app-producto-card [producto]="p">` in `productor-perfil.html` omits the output binding. Add `(toggleFavorito)="favoritosService.toggle($event)"` (or wire it through a method) to keep favorite state consistent across the app.
-
-5. **Build not verified** — The plan.md records the build command but no output log exists in `.agents/tasks/`. TypeScript and Angular template compilation errors under `strictTemplates: true` cannot be ruled out without a successful build run.
+3. **`productorDelProducto` plain getter re-executes every CD cycle** — The getter on `ProductoDetalle` is not memoized. Harmless with a static mock array, but should become a `computed` before `PRODUCTORES_MOCK` is replaced with a service call. (likely)
 
 </details>
-
----
 
 <details>
 <summary>Details</summary>
 
-### Hardcoded CSS colors
+### Hardcoded buyer identity in `enviarSolicitud`
 
-`productor-perfil.scss` line 11: `background: rgba(0, 0, 0, 0.4)` on the `.portada-overlay` element. This is the only unambiguous CSS variable violation across the four component stylesheets.
+```typescript
+this.solicitudesService.agregar({
+  id: Date.now(),
+  productoId: p.id,
+  productorId: p.productorId,
+  compradorId: 1,   // ← hardcoded
+  ...
+});
+```
 
-`producto-detalle.scss` line 117: `.exito { background: color-mix(in srgb, var(--primary) 10%, white) }`. The `color-mix` function itself is fine, but `white` is a hardcoded color keyword. The intent is clearly to tint the primary color against the page background, so `var(--surface-white)` is the appropriate replacement.
+The `Solicitud` model requires `compradorId: number`. Without an auth layer the placeholder value `1` satisfies the type but makes every solicitud appear to come from the same buyer. This is confirmed by reading both the model and the service call.
 
-### Producer info in ProductoDetalle
+### Reactive gap in `ProductorPerfil`
 
-The spec says "Información del productor con nombre y municipio del productor." The implementation shows `ID Productor: {{ producto()!.productorId }}` and `Municipio: {{ producto()!.municipio }}`. Since the `Producto` model carries `productorId` but not the producer's name, resolving the actual name would require a lookup against `PRODUCTORES_MOCK`. The current implementation shows the ID instead of the name — a gap relative to the spec, though not a TypeScript error.
+```typescript
+ngOnInit(): void {
+  const productos = this.productosService.productos().filter(
+    pr => pr.productorId === id && pr.activo
+  );
+  this.productosDelProductor.set(productos);   // snapshot, not reactive
+}
+```
 
-### Missing `(toggleFavorito)` binding in ProductorPerfil
+`productosDelProductor` is a writable signal set once from a signal snapshot. If `productosService.productos()` updates (e.g., a product is deactivated), the profile grid won't update until the route is re-entered. A `computed(() => this.productosService.productos().filter(...))` would make this reactive at zero additional cost.
 
-The product cards in `productor-perfil.html` are rendered as `<app-producto-card [producto]="p">` without a `(toggleFavorito)` output binding. The `ProductoCard` component declares `@Output() toggleFavorito`, so clicking the favorite button will emit an event with no handler — it won't error, but favorites won't be persisted for products viewed from a producer profile. The Catálogo template correctly wires `(toggleFavorito)="onToggleFavorito($event)"`.
+### `productorDelProducto` getter on every CD cycle
 
-### Build verification gap
+The `productorDelProducto` getter in `ProductoDetalle` is a plain class getter, not a `computed`. Angular will call it on every change-detection pass. With `PRODUCTORES_MOCK` as a small static array this is currently harmless, but if the producer lookup is ever replaced with a reactive or async source, this getter should become a `computed` signal to avoid re-execution on unrelated state changes.
 
-The plan.md documents the `npx ng build --configuration development` verification step but no output was recorded. The `ordenamiento` signal setter receives a raw DOM string via `$any()` — Angular's strict templates won't catch the union mismatch because `$any()` bypasses type checking, which is intentional. However, other template binding errors under `strictTemplates: true` could still exist and are unverified.
+### Test coverage
+
+No test files were added with these components. There is nothing to flag about missing tests beyond noting the absence: critical paths with zero coverage include the filter+sort logic in `productosFiltrados`, the `enviarSolicitud` validation branch (quantity > available), and the route-param guard in `ngOnInit` on `ProductoDetalle` and `ProductorPerfil`.
 
 </details>
 
@@ -70,20 +74,20 @@ The plan.md documents the `npx ng build --configuration development` verificatio
 <details>
 <summary>File map</summary>
 
-| File | Change |
-|------|--------|
-| `src/app/shared/producto-card/producto-card.ts` | New standalone component: `@Input` producto, `@Output` toggleFavorito, esFavorito plain property, formatearPrecio |
-| `src/app/shared/producto-card/producto-card.html` | Card template: image wrap, category badge, fav button, body with price and routerLink |
-| `src/app/shared/producto-card/producto-card.scss` | Card styles: CSS variables throughout, 4/3 aspect ratio, hover elevation |
-| `src/app/catalogo/catalogo.ts` | Replaced stub: 4 filter signals, computed productosFiltrados/totalResultados, limpiarFiltros, onToggleFavorito |
-| `src/app/catalogo/catalogo.html` | Sidebar + grid layout, @for selects, @if empty state |
-| `src/app/catalogo/catalogo.scss` | 260px sticky sidebar, 3-col grid, responsive breakpoints at 1024/768/480px |
-| `src/app/producto-detalle/producto-detalle.ts` | Replaced stub: OnInit route read, reactive form, enviarSolicitud with stock check |
-| `src/app/producto-detalle/producto-detalle.html` | Detail layout: @if guard, form with formControlName, success message, producer section |
-| `src/app/producto-detalle/producto-detalle.scss` | 2-col grid layout, form inputs styled with CSS vars; **`white` literal in color-mix** |
-| `src/app/productor-perfil/productor-perfil.ts` | Replaced stub: reads PRODUCTORES_MOCK, filters by productorId && activo, contactar() alert |
-| `src/app/productor-perfil/productor-perfil.html` | Cover photo with overlay, circular profile pic, products list, lotes counter, product grid |
-| `src/app/productor-perfil/productor-perfil.scss` | Cover/profile layout, product grid; **`rgba(0,0,0,0.4)` hardcoded** |
+| File | What changed |
+|------|-------------|
+| `src/app/shared/producto-card/producto-card.ts` | New standalone component — `@Input` producto, `@Output` toggleFavorito, `esFavorito` bool |
+| `src/app/shared/producto-card/producto-card.html` | Card template — image, category badge, favourite button, name, price, link |
+| `src/app/shared/producto-card/producto-card.scss` | Card styles — aspect-ratio image wrap, hover elevation, favourite button states |
+| `src/app/catalogo/catalogo.ts` | New standalone component — 4 filter signals, `productosFiltrados` computed, `limpiarFiltros` |
+| `src/app/catalogo/catalogo.html` | Catalogue template — sidebar filters, product grid, empty state |
+| `src/app/catalogo/catalogo.scss` | Catalogue styles — 260px sticky sidebar, 3-col grid, responsive stacking at 768px |
+| `src/app/producto-detalle/producto-detalle.ts` | New standalone component — route param guard, reactive form, `enviarSolicitud`, `productorDelProducto` getter |
+| `src/app/producto-detalle/producto-detalle.html` | Detail template — image, info, purchase form, success message, producer section |
+| `src/app/producto-detalle/producto-detalle.scss` | Detail styles — 2-col grid layout, form inputs, success banner |
+| `src/app/productor-perfil/productor-perfil.ts` | New standalone component — reads `PRODUCTORES_MOCK`, filters products by `productorId`, `contactar` alert |
+| `src/app/productor-perfil/productor-perfil.html` | Profile template — cover photo, circular avatar, info, product list, product grid |
+| `src/app/productor-perfil/productor-perfil.scss` | Profile styles — cover overlay, sticky avatar positioning, responsive grid |
 
 Full diff: `git diff main -- src/app/shared/producto-card src/app/catalogo src/app/producto-detalle src/app/productor-perfil`
 
