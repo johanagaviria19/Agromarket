@@ -1,6 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductosService } from '../services/productos.service';
 import { FavoritosService } from '../services/favoritos.service';
@@ -10,7 +9,7 @@ import { Producto } from '../models/producto.model';
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProductoCard],
+  imports: [CommonModule, RouterLink, ProductoCard],
   templateUrl: './catalogo.html',
   styleUrl: './catalogo.scss'
 })

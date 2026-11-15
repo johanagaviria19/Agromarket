@@ -1,7 +1,8 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ProductosService } from '../services/productos.service';
 import { SolicitudesService } from '../services/solicitudes.service';
 import { Producto } from '../models/producto.model';
@@ -14,12 +15,13 @@ import { PRODUCTORES_MOCK } from '../data/mock-data';
   templateUrl: './producto-detalle.html',
   styleUrl: './producto-detalle.scss'
 })
-export class ProductoDetalle implements OnInit {
+export class ProductoDetalle implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private productosService = inject(ProductosService);
   private solicitudesService = inject(SolicitudesService);
+  private paramSub: Subscription | null = null;
 
   producto = signal<Producto | null>(null);
   cantidad = signal(1);
@@ -36,18 +38,24 @@ export class ProductoDetalle implements OnInit {
   });
 
   ngOnInit(): void {
-    const raw = this.route.snapshot.paramMap.get('id');
-    const id = Number(raw);
-    if (!raw || isNaN(id)) {
-      this.router.navigate(['/catalogo']);
-      return;
-    }
-    const p = this.productosService.getById(id);
-    if (!p) {
-      this.router.navigate(['/catalogo']);
-      return;
-    }
-    this.producto.set(p);
+    this.paramSub = this.route.paramMap.subscribe(params => {
+      const raw = params.get('id');
+      const id = Number(raw);
+      if (!raw || isNaN(id)) {
+        this.router.navigate(['/catalogo']);
+        return;
+      }
+      const p = this.productosService.getById(id);
+      if (!p) {
+        this.router.navigate(['/catalogo']);
+        return;
+      }
+      this.producto.set(p);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.paramSub?.unsubscribe();
   }
 
   formatearPrecio(precio: number): string {
