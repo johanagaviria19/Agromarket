@@ -1,16 +1,16 @@
 <div class="dash">
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
   <aside class="dash__sidebar">
-    <a class="dash__logo" routerLink="/">🌿 AgroMarket</a>
+    <h2 class="dash__sidebar-title">Panel Comprador</h2>
     <nav class="dash__menu">
       <button type="button" [class.active]="seccionActiva() === 'resumen'" (click)="seccionActiva.set('resumen')">
-        📊 Resumen
+        <span class="dash__menu-icon">📊</span> Resumen
       </button>
       <button type="button" [class.active]="seccionActiva() === 'favoritos'" (click)="seccionActiva.set('favoritos')">
-        ♥ Mis favoritos
+        <span class="dash__menu-icon">♥</span> Mis favoritos
       </button>
       <button type="button" [class.active]="seccionActiva() === 'solicitudes'" (click)="seccionActiva.set('solicitudes')">
-        🧾 Mis solicitudes
+        <span class="dash__menu-icon">🧾</span> Mis solicitudes
       </button>
     </nav>
   </aside>
@@ -21,7 +21,7 @@
 
       <!-- ── RESUMEN ── -->
       @case ('resumen') {
-        <h2 class="dash__title">Resumen</h2>
+        <h1 class="dash__title">Resumen</h1>
         <div class="stats">
           <div class="stat-card">
             <span class="stat-card__icon">🧾</span>
@@ -43,23 +43,26 @@
 
       <!-- ── FAVORITOS ── -->
       @case ('favoritos') {
-        <h2 class="dash__title">Mis favoritos</h2>
+        <h1 class="dash__title">Mis favoritos</h1>
         @if (productosFavoritos().length === 0) {
           <div class="vacio">
             <p>Todavía no tienes productos favoritos.</p>
-            <a class="btn-primary vacio__btn" routerLink="/catalogo">Explorar catálogo</a>
+            <a class="btn-primary" routerLink="/catalogo">Explorar catálogo</a>
           </div>
         } @else {
           <div class="fav-grid">
             @for (p of productosFavoritos(); track p.id) {
               <div class="fav-card">
-                <img class="fav-card__img" [src]="p.imagen" [alt]="p.nombre">
+                <div class="fav-card__img-wrap">
+                  <img class="fav-card__img" [src]="p.imagen" [alt]="p.nombre">
+                  <span class="badge fav-card__badge">{{ p.categoria }}</span>
+                </div>
                 <div class="fav-card__body">
                   <h3 class="fav-card__nombre">{{ p.nombre }}</h3>
                   <p class="fav-card__precio">{{ formatearPrecio(p.precio) }}</p>
                   <div class="fav-card__acciones">
-                    <a class="btn-primary btn-mini" [routerLink]="['/producto', p.id]">Ver producto</a>
-                    <button type="button" class="btn-mini btn-mini--danger" (click)="quitarFavorito(p.id)">Quitar</button>
+                    <a class="btn-primary btn-sm" [routerLink]="['/producto', p.id]">Ver producto</a>
+                    <button type="button" class="btn-danger btn-sm" (click)="quitarFavorito(p.id)">Quitar</button>
                   </div>
                 </div>
               </div>
@@ -70,11 +73,11 @@
 
       <!-- ── SOLICITUDES ── -->
       @case ('solicitudes') {
-        <h2 class="dash__title">Mis solicitudes</h2>
+        <h1 class="dash__title">Mis solicitudes</h1>
         @if (solicitudesList().length === 0) {
           <div class="vacio">
             <p>Aún no has realizado ninguna solicitud de compra.</p>
-            <a class="btn-primary vacio__btn" routerLink="/catalogo">Explorar catálogo</a>
+            <a class="btn-primary" routerLink="/catalogo">Explorar catálogo</a>
           </div>
         } @else {
           <div class="tabla-wrap">
@@ -95,7 +98,7 @@
                     <td class="tabla__nombre">{{ getNombreProducto(s.productoId) }}</td>
                     <td>{{ getNombreProductor(s.productorId) }}</td>
                     <td>{{ s.cantidad }}</td>
-                    <td>{{ formatearPrecio(s.subtotal) }}</td>
+                    <td class="tabla__precio">{{ formatearPrecio(s.subtotal) }}</td>
                     <td>{{ s.fecha }}</td>
                     <td>
                       <span class="badge" [ngClass]="getClaseEstado(s.estado)">{{ s.estado }}</span>
