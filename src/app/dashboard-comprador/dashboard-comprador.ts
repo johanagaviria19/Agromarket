@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { SolicitudesService } from '../services/solicitudes.service';
 import { ProductosService } from '../services/productos.service';
 import { FavoritosService } from '../services/favoritos.service';
+import { AuthService } from '../services/auth.service';
 import { PRODUCTORES_MOCK } from '../data/mock-data';
 import { Producto } from '../models/producto.model';
 
@@ -20,10 +21,15 @@ export class DashboardComprador {
   private solicitudesService = inject(SolicitudesService);
   private productosService = inject(ProductosService);
   private favoritosService = inject(FavoritosService);
+  private authService = inject(AuthService);
 
   seccionActiva = signal<SeccionComprador>('resumen');
 
-  readonly solicitudesList = this.solicitudesService.solicitudes;
+  readonly compradorId = computed(() => this.authService.usuario()!.id);
+
+  readonly solicitudesList = computed(() =>
+    this.solicitudesService.solicitudes().filter(s => s.compradorId === this.compradorId())
+  );
   readonly totalFavoritos = this.favoritosService.total;
 
   totalSolicitudes = computed(() => this.solicitudesList().length);

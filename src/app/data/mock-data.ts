@@ -1,6 +1,7 @@
 import { Producto } from '../models/producto.model';
 import { Productor } from '../models/productor.model';
 import { Solicitud } from '../models/solicitud.model';
+import { Usuario } from '../models/usuario.model';
 
 export const PRODUCTORES_MOCK: Productor[] = [
   {
@@ -147,8 +148,13 @@ export const PRODUCTOS_MOCK: Producto[] = [
 ];
 
 export const SOLICITUDES_MOCK: Solicitud[] = [
-  { id: 1, productoId: 1, productorId: 1, compradorId: 1, cantidad: 50, subtotal: 160000, estado: 'aceptada', fecha: '2025-10-28' },
-  { id: 2, productoId: 3, productorId: 2, compradorId: 1, cantidad: 10, subtotal: 78000, estado: 'pendiente', fecha: '2025-11-01' },
-  { id: 3, productoId: 6, productorId: 5, compradorId: 1, cantidad: 20, subtotal: 104000, estado: 'finalizada', fecha: '2025-10-15' },
-  { id: 4, productoId: 2, productorId: 3, compradorId: 1, cantidad: 30, subtotal: 135000, estado: 'rechazada', fecha: '2025-10-20' },
+  { id: 1, productoId: 1, productorId: 1, compradorId: 2, cantidad: 50, subtotal: 160000, estado: 'aceptada', fecha: '2025-10-28' },
+  { id: 2, productoId: 3, productorId: 2, compradorId: 2, cantidad: 10, subtotal: 78000, estado: 'pendiente', fecha: '2025-11-01' },
+  { id: 3, productoId: 6, productorId: 5, compradorId: 2, cantidad: 20, subtotal: 104000, estado: 'finalizada', fecha: '2025-10-15' },
+  { id: 4, productoId: 2, productorId: 3, compradorId: 2, cantidad: 30, subtotal: 135000, estado: 'rechazada', fecha: '2025-10-20' },
+];
+
+export const USUARIOS_MOCK: Usuario[] = [
+  { id: 1, nombre: 'Don Hernando Jojoa', email: 'hernando@agro.co', rol: 'agricultor', municipio: 'Pasto' },
+  { id: 2, nombre: 'María Comprador',    email: 'maria@comprador.co', rol: 'comprador', municipio: 'Bogotá' },
 ];

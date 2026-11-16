@@ -51,6 +51,10 @@
           </form>
         </section>
 
+        @if (mensajeNoAuth()) {
+          <p class="mensaje-error">{{mensajeNoAuth()}}</p>
+        }
+
         @if (mensajeExito()) {
           <div class="exito">{{ mensajeExito() }}</div>
         }

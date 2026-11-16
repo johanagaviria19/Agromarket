@@ -1,6 +1,7 @@
-import { Component, signal, Output, EventEmitter } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, signal, Output, EventEmitter, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,20 +18,38 @@ import { CommonModule } from '@angular/common';
         <ul class="navbar__links" [class.open]="menuAbierto()">
           <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Inicio</a></li>
           <li><a routerLink="/catalogo" routerLinkActive="active">Catálogo</a></li>
-          <li><a routerLink="/dashboard-agricultor" routerLinkActive="active">Dashboard Agricultor</a></li>
-          <li><a routerLink="/dashboard-comprador" routerLinkActive="active">Dashboard Comprador</a></li>
+          @if (auth.esAgricultor()) {
+            <li><a routerLink="/dashboard-agricultor" routerLinkActive="active">Dashboard Agricultor</a></li>
+          }
+          @if (auth.esComprador()) {
+            <li><a routerLink="/dashboard-comprador" routerLinkActive="active">Dashboard Comprador</a></li>
+          }
 
-          <!-- Acciones (visibles en móvil dentro del menú) -->
+          <!-- Acciones móvil -->
           <li class="navbar__actions--mobile">
-            <button class="btn-outline" (click)="abrirLogin.emit()">Iniciar sesión</button>
-            <a class="btn-primary" routerLink="/dashboard-agricultor">Vender mis productos</a>
+            @if (auth.estaLogueado()) {
+              <span class="user-name">👤 {{auth.usuario()?.nombre}}</span>
+              <button class="btn-outline" (click)="onLogout()">Cerrar sesión</button>
+            } @else {
+              <button class="btn-outline" (click)="abrirLogin.emit()">Iniciar sesión</button>
+            }
+            @if (auth.esAgricultor() || !auth.estaLogueado()) {
+              <a class="btn-primary" routerLink="/dashboard-agricultor">Vender mis productos</a>
+            }
           </li>
         </ul>
 
         <!-- Acciones escritorio -->
         <div class="navbar__actions">
-          <button class="btn-outline" (click)="abrirLogin.emit()">Iniciar sesión</button>
-          <a class="btn-primary" routerLink="/dashboard-agricultor">Vender mis productos</a>
+          @if (auth.estaLogueado()) {
+            <span class="user-name">👤 {{auth.usuario()?.nombre}}</span>
+            <button class="btn-outline" (click)="onLogout()">Cerrar sesión</button>
+          } @else {
+            <button class="btn-outline" (click)="abrirLogin.emit()">Iniciar sesión</button>
+          }
+          @if (auth.esAgricultor() || !auth.estaLogueado()) {
+            <a class="btn-primary" routerLink="/dashboard-agricultor">Vender mis productos</a>
+          }
         </div>
 
         <!-- Hamburguesa -->
@@ -51,7 +70,6 @@ import { CommonModule } from '@angular/common';
       box-shadow: var(--shadow-sm);
       font-family: var(--font-body);
     }
-
     .navbar__inner {
       max-width: 1200px;
       margin: 0 auto;
@@ -61,7 +79,6 @@ import { CommonModule } from '@angular/common';
       align-items: center;
       gap: 2rem;
     }
-
     .navbar__logo {
       font-family: var(--font-heading);
       font-size: 1.35rem;
@@ -70,7 +87,6 @@ import { CommonModule } from '@angular/common';
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .navbar__links {
       display: flex;
       align-items: center;
@@ -78,7 +94,6 @@ import { CommonModule } from '@angular/common';
       list-style: none;
       flex: 1;
     }
-
     .navbar__links li a {
       text-decoration: none;
       color: var(--text);
@@ -88,22 +103,18 @@ import { CommonModule } from '@angular/common';
       border-radius: var(--radius-sm);
       transition: background 0.15s, color 0.15s;
     }
-
     .navbar__links li a:hover,
     .navbar__links li a.active {
       background: rgba(40, 89, 67, 0.08);
       color: var(--primary);
     }
-
     .navbar__actions {
       display: flex;
       gap: 0.75rem;
       align-items: center;
       flex-shrink: 0;
     }
-
     .navbar__actions--mobile { display: none; }
-
     .navbar__hamburger {
       display: none;
       flex-direction: column;
@@ -114,7 +125,6 @@ import { CommonModule } from '@angular/common';
       padding: 4px;
       margin-left: auto;
     }
-
     .navbar__hamburger span {
       display: block;
       width: 24px;
@@ -123,12 +133,15 @@ import { CommonModule } from '@angular/common';
       border-radius: 2px;
       transition: all 0.2s;
     }
-
+    .user-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
     @media (max-width: 768px) {
       .navbar__actions { display: none; }
-
       .navbar__hamburger { display: flex; }
-
       .navbar__links {
         display: none;
         position: absolute;
@@ -142,14 +155,11 @@ import { CommonModule } from '@angular/common';
         padding: 1rem 1.5rem;
         gap: 0.25rem;
       }
-
       .navbar__links.open { display: flex; }
-
       .navbar__links li a {
         display: block;
         padding: 10px 12px;
       }
-
       .navbar__actions--mobile {
         display: flex;
         flex-direction: column;
@@ -158,7 +168,6 @@ import { CommonModule } from '@angular/common';
         border-top: 1px solid var(--border);
         margin-top: 0.5rem;
       }
-
       .navbar__actions--mobile a,
       .navbar__actions--mobile button {
         width: 100%;
@@ -168,11 +177,18 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class Navbar {
+  auth = inject(AuthService);
+  private router = inject(Router);
   menuAbierto = signal(false);
 
   @Output() abrirLogin = new EventEmitter<void>();
 
   toggleMenu() {
     this.menuAbierto.update(v => !v);
+  }
+
+  onLogout(): void {
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }

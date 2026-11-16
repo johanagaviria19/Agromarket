@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductosService } from '../services/productos.service';
 import { SolicitudesService } from '../services/solicitudes.service';
+import { AuthService } from '../services/auth.service';
 import { Producto } from '../models/producto.model';
 import { EstadoSolicitud } from '../models/solicitud.model';
 
@@ -20,12 +21,19 @@ export class DashboardAgricultor {
   private fb = inject(FormBuilder);
   private productosService = inject(ProductosService);
   private solicitudesService = inject(SolicitudesService);
+  private authService = inject(AuthService);
 
   seccionActiva = signal<SeccionAgricultor>('resumen');
   mensajePublicacion = signal('');
 
-  readonly productos = this.productosService.productos;
-  readonly solicitudes = this.solicitudesService.solicitudes;
+  readonly productorId = computed(() => this.authService.usuario()!.id);
+
+  readonly productos = computed(() =>
+    this.productosService.productos().filter(p => p.productorId === this.productorId())
+  );
+  readonly solicitudes = computed(() =>
+    this.solicitudesService.solicitudes().filter(s => s.productorId === this.productorId())
+  );
 
   readonly categorias: Producto['categoria'][] = ['frutas', 'hortalizas', 'tuberculos', 'granos', 'campesinos'];
   readonly unidades: Producto['unidad'][] = ['kg', 'atado', 'unidad', 'bulto'];
@@ -62,7 +70,7 @@ export class DashboardAgricultor {
       cantidadDisponible: v.cantidadDisponible!,
       municipio: v.municipio!,
       departamento: 'Nariño',
-      productorId: 1,
+      productorId: this.productorId(),
       imagen: v.imagen?.trim()
         ? v.imagen
         : 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&h=300&fit=crop',

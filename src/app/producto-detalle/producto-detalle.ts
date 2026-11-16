@@ -5,6 +5,7 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductosService } from '../services/productos.service';
 import { SolicitudesService } from '../services/solicitudes.service';
+import { AuthService } from '../services/auth.service';
 import { Producto } from '../models/producto.model';
 import { PRODUCTORES_MOCK } from '../data/mock-data';
 
@@ -21,11 +22,13 @@ export class ProductoDetalle implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private productosService = inject(ProductosService);
   private solicitudesService = inject(SolicitudesService);
+  private authService = inject(AuthService);
   private paramSub: Subscription | null = null;
 
   producto = signal<Producto | null>(null);
   cantidad = signal(1);
   mensajeExito = signal('');
+  mensajeNoAuth = signal('');
 
   subtotal = computed(() => {
     const p = this.producto();
@@ -73,6 +76,11 @@ export class ProductoDetalle implements OnInit, OnDestroy {
   }
 
   enviarSolicitud(): void {
+    if (!this.authService.estaLogueado()) {
+      this.mensajeNoAuth.set('Debes iniciar sesión para enviar una solicitud.');
+      return;
+    }
+    this.mensajeNoAuth.set('');
     if (this.solicitudForm.invalid) {
       this.solicitudForm.markAllAsTouched();
       return;
@@ -87,7 +95,7 @@ export class ProductoDetalle implements OnInit, OnDestroy {
       id: Date.now(),
       productoId: p.id,
       productorId: p.productorId,
-      compradorId: 1,
+      compradorId: this.authService.usuario()?.id ?? 1,
       cantidad: cant,
       subtotal: this.subtotal(),
       estado: 'pendiente',
