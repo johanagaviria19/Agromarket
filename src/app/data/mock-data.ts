@@ -92,7 +92,7 @@ export const PRODUCTOS_MOCK: Producto[] = [
     id: 5, nombre: 'Cebolla Larga Junca', descripcion: 'Cebolla tallo extra grueso del valle cálido de Sandoná. Atados de 1 kg.',
     categoria: 'hortalizas', precio: 3000, unidad: 'atado', cantidadDisponible: 600,
     municipio: 'Sandoná', departamento: 'Nariño', productorId: 4,
-    imagen: 'https://images.unsplash.com/photo-1618512496248-a1f5f9ddc566?w=400&h=300&fit=crop',
+    imagen: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop',
     activo: true, fechaActualizacion: '2025-11-02'
   },
   {
