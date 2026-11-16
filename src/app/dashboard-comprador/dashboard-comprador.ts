@@ -42,10 +42,10 @@ export class DashboardComprador {
   );
 
   readonly clasePorEstado: Record<string, string> = {
-    pendiente: 'badge-pendiente',
-    aceptada: 'badge-aceptada',
-    rechazada: 'badge-rechazada',
-    finalizada: 'badge-finalizada'
+    pendiente: 'badge--pendiente',
+    aceptada: 'badge--aceptada',
+    rechazada: 'badge--rechazada',
+    finalizada: 'badge--finalizada'
   };
 
   getClaseEstado(estado: string): string {
