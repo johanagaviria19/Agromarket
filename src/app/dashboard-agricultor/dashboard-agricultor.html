@@ -1,19 +1,19 @@
 <div class="dash">
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
   <aside class="dash__sidebar">
-    <a class="dash__logo" routerLink="/">🌿 AgroMarket</a>
+    <h2 class="dash__sidebar-title">Panel Agricultor</h2>
     <nav class="dash__menu">
       <button type="button" [class.active]="seccionActiva() === 'resumen'" (click)="seccionActiva.set('resumen')">
-        📊 Resumen
+        <span class="dash__menu-icon">📊</span> Resumen
       </button>
       <button type="button" [class.active]="seccionActiva() === 'mis-productos'" (click)="seccionActiva.set('mis-productos')">
-        📦 Mis productos
+        <span class="dash__menu-icon">📦</span> Mis productos
       </button>
       <button type="button" [class.active]="seccionActiva() === 'publicar'" (click)="seccionActiva.set('publicar')">
-        ➕ Publicar producto
+        <span class="dash__menu-icon">➕</span> Publicar producto
       </button>
       <button type="button" [class.active]="seccionActiva() === 'solicitudes'" (click)="seccionActiva.set('solicitudes')">
-        🧾 Solicitudes
+        <span class="dash__menu-icon">🧾</span> Solicitudes
       </button>
     </nav>
   </aside>
@@ -21,14 +21,14 @@
   <!-- ═══════════════ CONTENIDO ═══════════════ -->
   <main class="dash__content">
     @if (mensajePublicacion()) {
-      <div class="alerta-exito">{{ mensajePublicacion() }}</div>
+      <div class="alerta-exito">✅ {{ mensajePublicacion() }}</div>
     }
 
     @switch (seccionActiva()) {
 
       <!-- ── RESUMEN ── -->
       @case ('resumen') {
-        <h2 class="dash__title">Resumen</h2>
+        <h1 class="dash__title">Resumen</h1>
         <div class="stats">
           <div class="stat-card">
             <span class="stat-card__icon">📦</span>
@@ -55,7 +55,7 @@
 
       <!-- ── MIS PRODUCTOS ── -->
       @case ('mis-productos') {
-        <h2 class="dash__title">Mis productos</h2>
+        <h1 class="dash__title">Mis productos</h1>
         <div class="tabla-wrap">
           <table class="tabla">
             <thead>
@@ -74,20 +74,20 @@
                 <tr>
                   <td><img class="tabla__img" [src]="p.imagen" [alt]="p.nombre"></td>
                   <td class="tabla__nombre">{{ p.nombre }}</td>
-                  <td>{{ formatearPrecio(p.precio) }}</td>
+                  <td class="tabla__precio">{{ formatearPrecio(p.precio) }}</td>
                   <td>{{ p.cantidadDisponible }} {{ p.unidad }}</td>
                   <td>{{ p.municipio }}</td>
                   <td>
-                    <span class="badge" [class.badge-activo]="p.activo" [class.badge-inactivo]="!p.activo">
+                    <span class="badge" [class.badge--activo]="p.activo" [class.badge--inactivo]="!p.activo">
                       {{ p.activo ? 'Activo' : 'Inactivo' }}
                     </span>
                   </td>
                   <td class="tabla__acciones">
-                    <button type="button" class="btn-mini btn-mini--ghost" (click)="editarProducto()">Editar</button>
-                    <button type="button" class="btn-mini" (click)="toggleActivo(p.id, p.activo)">
+                    <button type="button" class="btn-outline btn-sm" (click)="editarProducto()">Editar</button>
+                    <button type="button" class="btn-outline btn-sm" (click)="toggleActivo(p.id, p.activo)">
                       {{ p.activo ? 'Desactivar' : 'Activar' }}
                     </button>
-                    <button type="button" class="btn-mini btn-mini--danger" (click)="eliminarProducto(p.id)">Eliminar</button>
+                    <button type="button" class="btn-danger btn-sm" (click)="eliminarProducto(p.id)">Eliminar</button>
                   </td>
                 </tr>
               }
@@ -98,7 +98,7 @@
 
       <!-- ── PUBLICAR ── -->
       @case ('publicar') {
-        <h2 class="dash__title">Publicar producto</h2>
+        <h1 class="dash__title">Publicar producto</h1>
         <form class="form" [formGroup]="productoForm" (ngSubmit)="publicarProducto()">
           <div class="form__grid">
             <div class="form__field">
@@ -177,7 +177,7 @@
 
       <!-- ── SOLICITUDES ── -->
       @case ('solicitudes') {
-        <h2 class="dash__title">Solicitudes recibidas</h2>
+        <h1 class="dash__title">Solicitudes recibidas</h1>
         @if (solicitudes().length === 0) {
           <div class="vacio">
             <p>Aún no has recibido solicitudes de compra.</p>
@@ -200,15 +200,15 @@
                   <tr>
                     <td class="tabla__nombre">{{ getNombreProducto(s.productoId) }}</td>
                     <td>{{ s.cantidad }}</td>
-                    <td>{{ formatearPrecio(s.subtotal) }}</td>
+                    <td class="tabla__precio">{{ formatearPrecio(s.subtotal) }}</td>
                     <td>{{ s.fecha }}</td>
                     <td>
                       <span class="badge" [ngClass]="getClaseEstado(s.estado)">{{ s.estado }}</span>
                     </td>
                     <td class="tabla__acciones">
                       @if (s.estado === 'pendiente') {
-                        <button type="button" class="btn-mini" (click)="cambiarEstadoSolicitud(s.id, 'aceptada')">Aceptar</button>
-                        <button type="button" class="btn-mini btn-mini--danger" (click)="cambiarEstadoSolicitud(s.id, 'rechazada')">Rechazar</button>
+                        <button type="button" class="btn-primary btn-sm" (click)="cambiarEstadoSolicitud(s.id, 'aceptada')">Aceptar</button>
+                        <button type="button" class="btn-danger btn-sm" (click)="cambiarEstadoSolicitud(s.id, 'rechazada')">Rechazar</button>
                       } @else {
                         <span class="tabla__muted">—</span>
                       }
