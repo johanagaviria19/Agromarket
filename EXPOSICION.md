@@ -5,6 +5,33 @@
 
 ---
 
+## ¿POR QUÉ ANGULAR?
+
+Antes de entrar al código, explicamos por qué elegimos Angular para este proyecto.
+
+### 1. El proyecto maneja múltiples páginas con navegación
+AgroMarket tiene 6 rutas distintas: landing, catálogo, detalle de producto, perfil del productor y dos dashboards. Angular trae el **router incluido** sin instalar nada extra. Con `loadComponent` cada página se carga solo cuando el usuario la visita (lazy loading), lo que hace la app más rápida.
+
+### 2. Los datos cambian y el template debe reaccionar
+Cuando publicas un producto desde el dashboard, aparece inmediatamente en el catálogo. Cuando marcas un favorito, el contador se actualiza solo. Eso es posible gracias a los **Signals y computed()** — con HTML/JS puro habríamos tenido que actualizar el DOM manualmente cada vez que algo cambia.
+
+### 3. Los formularios necesitan validación real
+El formulario de solicitud de compra y el de publicar producto tienen reglas: campos obligatorios, mínimos, formatos. Los **Reactive Forms** con `Validators` manejan todo eso con una línea por regla y muestran mensajes de error automáticamente.
+
+### 4. Los componentes se reutilizan
+`ProductoCard` se usa en la landing, el catálogo, el perfil del productor y los dashboards. Un **Standalone Component** se importa donde se necesita y funciona igual en todos lados. Sin Angular, habríamos copiado y pegado el mismo HTML cuatro veces.
+
+### 5. TypeScript previene errores antes de ejecutar
+Los modelos como `Producto` y `Solicitud` son interfaces TypeScript. Si alguien escribe `producto.precioMal` el editor lo marca en rojo antes de correr la app. En un proyecto de equipo con 3 personas esto evita que los errores de una persona rompan el trabajo de otra.
+
+### 6. Es un framework pensado para equipos
+Angular tiene una estructura de carpetas, convenciones de nombres y patrones fijos. Eso permitió que las tres personas trabajaran en ramas separadas sin pisarse — cada uno sabía exactamente dónde iba su código porque Angular lo define.
+
+> **Frase resumen para la exposición:**
+> *"Usamos Angular porque el proyecto necesitaba navegación entre páginas, estado reactivo que se actualizara automáticamente, formularios con validación y componentes reutilizables — todo eso viene incluido en Angular sin librerías adicionales."*
+
+---
+
 ## REPARTO DE ROLES
 
 | Persona | Fase | Responsabilidad |
