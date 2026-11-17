@@ -6,7 +6,7 @@
       class="btn-fav"
       type="button"
       (click)="onToggleFavorito($event)"
-      [class.activo]="favoritosService.esFavorito(producto.id)"
+      [class.activo]="favoritosService.ids().includes(producto.id)"
       aria-label="Marcar como favorito">
       ♥
     </button>
