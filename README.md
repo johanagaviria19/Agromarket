@@ -10,10 +10,10 @@ AgroMarket es una aplicación web que conecta agricultores y compradores de la r
 
 | Nombre | Rol principal |
 |--------|--------------|
-| Pedro | Componentes de catálogo y detalle |
-| Johan | Dashboards y sistema de autenticación |
+| Pedroza | Componentes de catálogo y detalle |
+| Johana Catalina | Dashboards y sistema de autenticación y Base del proyecto y estructura inicial |
 | Esteban | Landing page y diseño del sistema |
-| Catalina | Base del proyecto y estructura inicial |
+
 
 ---
 
