@@ -9,7 +9,7 @@ const CATEGORIAS = [
   { id: 'todos',       label: 'Todos',               emoji: '🛒' },
   { id: 'frutas',      label: 'Frutas',               emoji: '🍓' },
   { id: 'hortalizas',  label: 'Hortalizas',           emoji: '🥦' },
-  { id: 'tuberculos',  label: 'Tubérculos',           emoji: '🥔' },
+  { id: 'tuberculos',  label: 'Tubérculos',            emoji: '🥔' },
   { id: 'granos',      label: 'Granos',               emoji: '🌽' },
   { id: 'campesinos',  label: 'Productos Campesinos', emoji: '🧺' },
 ];
@@ -19,7 +19,7 @@ const CATEGORIAS = [
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <!-- ═══════════════════════ HERO ═══════════════════════ -->
+    <!-- HERO -->
     <section class="hero">
       <div class="hero__overlay"></div>
       <div class="hero__content">
@@ -36,7 +36,7 @@ const CATEGORIAS = [
       </div>
     </section>
 
-    <!-- ═══════════════════════ CÓMO FUNCIONA ═══════════════════════ -->
+    <!-- CÓMO FUNCIONA -->
     <section class="steps">
       <div class="section-inner">
         <h2 class="section-title">¿Cómo funciona?</h2>
@@ -54,7 +54,7 @@ const CATEGORIAS = [
       </div>
     </section>
 
-    <!-- ═══════════════════════ CATEGORÍAS ═══════════════════════ -->
+    <!-- CATEGORÍAS -->
     <section class="categorias">
       <div class="section-inner">
         <h2 class="section-title">Explora por categoría</h2>
@@ -72,7 +72,7 @@ const CATEGORIAS = [
       </div>
     </section>
 
-    <!-- ═══════════════════════ PRODUCTOS DESTACADOS ═══════════════════════ -->
+    <!-- PRODUCTOS DESTACADOS -->
     <section class="productos">
       <div class="section-inner">
         <div class="section-header">
@@ -111,7 +111,7 @@ const CATEGORIAS = [
       </div>
     </section>
 
-    <!-- ═══════════════════════ PRODUCTORES DESTACADOS ═══════════════════════ -->
+    <!-- PRODUCTORES DESTACADOS -->
     <section class="productores">
       <div class="section-inner">
         <h2 class="section-title">Productores destacados</h2>
@@ -138,7 +138,7 @@ const CATEGORIAS = [
       </div>
     </section>
 
-    <!-- ═══════════════════════ BENEFICIOS ═══════════════════════ -->
+    <!-- BENEFICIOS -->
     <section class="beneficios">
       <div class="section-inner">
         <h2 class="section-title">¿Por qué AgroMarket?</h2>

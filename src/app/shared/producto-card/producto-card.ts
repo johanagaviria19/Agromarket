@@ -1,7 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Producto } from '../../models/producto.model';
+import { FavoritosService } from '../../services/favoritos.service';
 
 @Component({
   selector: 'app-producto-card',
@@ -13,7 +14,8 @@ import { Producto } from '../../models/producto.model';
 export class ProductoCard {
   @Input({ required: true }) producto!: Producto;
   @Output() toggleFavorito = new EventEmitter<number>();
-  esFavorito = false;
+
+  favoritosService = inject(FavoritosService);
 
   formatearPrecio(precio: number): string {
     return new Intl.NumberFormat('es-CO', {
@@ -25,7 +27,7 @@ export class ProductoCard {
 
   onToggleFavorito(event: Event): void {
     event.preventDefault();
-    this.esFavorito = !this.esFavorito;
+    this.favoritosService.toggle(this.producto.id);
     this.toggleFavorito.emit(this.producto.id);
   }
 }

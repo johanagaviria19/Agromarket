@@ -1,59 +1,157 @@
-# Agromarket
+# 🌿 AgroMarket — Marketplace Agrícola de Nariño
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.24.
+**Proyecto final — Electiva Angular**
 
-## Development server
+AgroMarket es una aplicación web que conecta agricultores y compradores de la región de Nariño, Colombia. Permite explorar productos del campo, gestionar solicitudes de compra y administrar el catálogo de cada productor, todo sin necesidad de un backend gracias al uso de Local Storage.
 
-To start a local development server, run:
+---
+
+## Integrantes del equipo
+
+| Nombre | Rol principal |
+|--------|--------------|
+| Pedro | Componentes de catálogo y detalle |
+| Johan | Dashboards y sistema de autenticación |
+| Esteban | Landing page y diseño del sistema |
+| Catalina | Base del proyecto y estructura inicial |
+
+---
+
+## Funcionalidades principales
+
+### Para compradores
+- Explorar el catálogo completo de productos agrícolas
+- Filtrar por categoría, municipio, búsqueda y ordenamiento
+- Ver el detalle de cada producto con galería e información del productor
+- Enviar solicitudes de compra con cantidad y notas
+- Marcar productos como favoritos (persisten entre sesiones)
+- Ver el perfil público de cada productor con sus productos activos
+
+### Para agricultores
+- Publicar nuevos productos con imagen, precio, categoría y cantidad
+- Editar la información de sus productos
+- Activar o desactivar productos del catálogo
+- Gestionar solicitudes recibidas (aceptar / rechazar)
+- Ver resumen con estadísticas de su actividad
+
+### Sistema de autenticación
+- Inicio de sesión y registro con roles diferenciados (`agricultor` / `comprador`)
+- Rutas protegidas por guards según el rol
+- Sesión persistente con Local Storage
+- Redirección automática al dashboard correspondiente tras el login
+
+---
+
+## Conceptos de Angular aplicados
+
+| Concepto | Dónde se aplica |
+|----------|----------------|
+| Standalone Components | Todos los componentes del proyecto |
+| Signals (`signal`, `computed`) | Estado reactivo en todos los componentes y servicios |
+| `@if` / `@for` | Control de flujo en todos los templates |
+| `@Input` / `@Output` | Comunicación entre `ProductoCard` y sus componentes padre |
+| Formularios reactivos (`FormBuilder`, `Validators`) | Login, registro, solicitud de compra, publicar/editar producto |
+| `inject()` | Inyección de dependencias en todos los componentes |
+| `RouterLink` / `ActivatedRoute` / Guards | Navegación, lectura de parámetros de ruta y protección por rol |
+| Servicios con Local Storage | `ProductosService`, `FavoritosService`, `SolicitudesService`, `AuthService` |
+| CSS Variables | Sistema de diseño global coherente en toda la aplicación |
+| Lazy loading | Cada ruta carga su componente de forma diferida con `loadComponent` |
+
+---
+
+## Estructura del proyecto
+
+```
+src/app/
+├── data/                      # Mock data (productos, productores, usuarios, solicitudes)
+├── models/                    # Interfaces TypeScript (Producto, Productor, Solicitud, Usuario)
+├── services/                  # Servicios con signals y localStorage
+│   ├── auth.service.ts
+│   ├── productos.service.ts
+│   ├── favoritos.service.ts
+│   └── solicitudes.service.ts
+├── guards/                    # AuthGuard y RolGuard
+├── shared/                    # Componentes reutilizables
+│   ├── navbar/
+│   ├── footer/
+│   ├── producto-card/
+│   └── login-modal/
+├── home/                      # Landing page
+├── catalogo/                  # Catálogo con filtros
+├── producto-detalle/          # Detalle del producto + formulario de solicitud
+├── productor-perfil/          # Perfil público del productor
+├── dashboard-agricultor/      # Panel de gestión para agricultores
+└── dashboard-comprador/       # Panel de solicitudes y favoritos para compradores
+```
+
+---
+
+## Cómo ejecutar el proyecto
+
+### Requisitos previos
+- Node.js 18 o superior
+- Angular CLI instalado globalmente
 
 ```bash
+npm install -g @angular/cli
+```
+
+### Pasos
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/johanagaviria19/Agromarket.git
+cd Agromarket
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar el servidor de desarrollo
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abrir el navegador en **http://localhost:4200**
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### Build de producción
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Los archivos compilados quedan en `dist/Agromarket/`.
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Usuarios de prueba
 
-```bash
-ng test
-```
+| Email | Contraseña | Rol |
+|-------|-----------|-----|
+| `hernando@agro.co` | cualquiera | Agricultor |
+| `maria@comprador.co` | cualquiera | Comprador |
 
-## Running end-to-end tests
+También es posible registrar un nuevo usuario desde el modal de inicio de sesión.
 
-For end-to-end (e2e) testing, run:
+---
 
-```bash
-ng e2e
-```
+## Decisiones técnicas
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- **Sin backend:** toda la información se gestiona con Local Storage y datos mock. Esto permite demostrar el funcionamiento completo de Angular sin infraestructura adicional.
+- **Signals en lugar de RxJS:** se usó la API de signals de Angular para el estado reactivo, que es la forma moderna y recomendada desde Angular 17+.
+- **CSS Variables:** el sistema de diseño se basa en variables CSS globales definidas en `styles.scss`, lo que garantiza consistencia visual y facilita el mantenimiento.
+- **Lazy loading:** cada ruta usa `loadComponent` para cargar los módulos solo cuando se necesitan, mejorando el tiempo de carga inicial.
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Capturas de pantalla
+
+| Vista | Descripción |
+|-------|-------------|
+| Landing page | Hero, categorías, productos destacados, productores y beneficios |
+| Catálogo | Grid de productos con sidebar de filtros reactivos |
+| Detalle | Información completa del producto y formulario de solicitud |
+| Dashboard agricultor | Gestión de productos y solicitudes recibidas |
+| Dashboard comprador | Favoritos y solicitudes enviadas |
+
+---
+
+*Desarrollado con Angular — Electiva de profundización, 2025*

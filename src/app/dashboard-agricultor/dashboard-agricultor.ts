@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProductosService } from '../services/productos.service';
 import { SolicitudesService } from '../services/solicitudes.service';
+import { AuthService } from '../services/auth.service';
 import { Producto } from '../models/producto.model';
 import { EstadoSolicitud } from '../models/solicitud.model';
 
-type SeccionAgricultor = 'resumen' | 'mis-productos' | 'publicar' | 'solicitudes';
+type SeccionAgricultor = 'resumen' | 'mis-productos' | 'publicar' | 'editar' | 'solicitudes';
 
 @Component({
   selector: 'app-dashboard-agricultor',
@@ -19,37 +20,57 @@ export class DashboardAgricultor {
   private fb = inject(FormBuilder);
   private productosService = inject(ProductosService);
   private solicitudesService = inject(SolicitudesService);
+  private authService = inject(AuthService);
 
   seccionActiva = signal<SeccionAgricultor>('resumen');
   mensajePublicacion = signal('');
+  mensajeEdicion = signal('');
+  productoEditando = signal<Producto | null>(null);
 
-  readonly productos = this.productosService.productos;
-  readonly solicitudes = this.solicitudesService.solicitudes;
+  readonly productorId = computed(() => this.authService.usuario()!.id);
+
+  readonly productos = computed(() =>
+    this.productosService.productos().filter(p => p.productorId === this.productorId())
+  );
+  readonly solicitudes = computed(() =>
+    this.solicitudesService.solicitudes().filter(s => s.productorId === this.productorId())
+  );
 
   readonly categorias: Producto['categoria'][] = ['frutas', 'hortalizas', 'tuberculos', 'granos', 'campesinos'];
   readonly unidades: Producto['unidad'][] = ['kg', 'atado', 'unidad', 'bulto'];
 
-  totalProductos = computed(() => this.productos().length);
-  productosActivos = computed(() => this.productos().filter(p => p.activo).length);
+  totalProductos    = computed(() => this.productos().length);
+  productosActivos  = computed(() => this.productos().filter(p => p.activo).length);
   productosAgotados = computed(() => this.productos().filter(p => p.cantidadDisponible === 0).length);
   solicitudesPendientes = computed(() => this.solicitudes().filter(s => s.estado === 'pendiente').length);
 
+  // ── Formulario publicar ──
   productoForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(3)]],
-    descripcion: ['', [Validators.required]],
-    categoria: ['', [Validators.required]],
-    precio: [null as number | null, [Validators.required, Validators.min(1)]],
-    unidad: ['kg', [Validators.required]],
+    nombre:             ['', [Validators.required, Validators.minLength(3)]],
+    descripcion:        ['', Validators.required],
+    categoria:          ['', Validators.required],
+    precio:             [null as number | null, [Validators.required, Validators.min(1)]],
+    unidad:             ['kg', Validators.required],
     cantidadDisponible: [null as number | null, [Validators.required, Validators.min(1)]],
-    municipio: ['', [Validators.required]],
-    imagen: ['']
+    municipio:          ['', Validators.required],
+    imagen:             ['']
   });
 
+  // ── Formulario editar ──
+  editarForm = this.fb.group({
+    nombre:             ['', [Validators.required, Validators.minLength(3)]],
+    descripcion:        ['', Validators.required],
+    categoria:          ['', Validators.required],
+    precio:             [null as number | null, [Validators.required, Validators.min(1)]],
+    unidad:             ['kg', Validators.required],
+    cantidadDisponible: [null as number | null, [Validators.required, Validators.min(1)]],
+    municipio:          ['', Validators.required],
+    imagen:             ['']
+  });
+
+  // ── Publicar ──
   publicarProducto(): void {
-    if (this.productoForm.invalid) {
-      this.productoForm.markAllAsTouched();
-      return;
-    }
+    if (this.productoForm.invalid) { this.productoForm.markAllAsTouched(); return; }
     const v = this.productoForm.getRawValue();
     const nuevo: Producto = {
       id: Date.now(),
@@ -61,20 +82,63 @@ export class DashboardAgricultor {
       cantidadDisponible: v.cantidadDisponible!,
       municipio: v.municipio!,
       departamento: 'Nariño',
-      productorId: 1,
-      imagen: v.imagen?.trim()
-        ? v.imagen
-        : 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&h=300&fit=crop',
+      productorId: this.productorId(),
+      imagen: v.imagen?.trim() || 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&h=300&fit=crop',
       activo: true,
       fechaActualizacion: new Date().toISOString().split('T')[0]
     };
-
     this.productosService.agregar(nuevo);
     this.mensajePublicacion.set(`Producto "${nuevo.nombre}" publicado con éxito.`);
     this.productoForm.reset({ unidad: 'kg' });
     this.seccionActiva.set('mis-productos');
   }
 
+  // ── Editar ──
+  iniciarEdicion(producto: Producto): void {
+    this.productoEditando.set(producto);
+    this.editarForm.patchValue({
+      nombre:             producto.nombre,
+      descripcion:        producto.descripcion,
+      categoria:          producto.categoria,
+      precio:             producto.precio,
+      unidad:             producto.unidad,
+      cantidadDisponible: producto.cantidadDisponible,
+      municipio:          producto.municipio,
+      imagen:             producto.imagen
+    });
+    this.mensajeEdicion.set('');
+    this.seccionActiva.set('editar');
+  }
+
+  guardarEdicion(): void {
+    if (this.editarForm.invalid) { this.editarForm.markAllAsTouched(); return; }
+    const v = this.editarForm.getRawValue();
+    this.productosService.actualizar(this.productoEditando()!.id, {
+      nombre:             v.nombre!,
+      descripcion:        v.descripcion!,
+      categoria:          v.categoria as Producto['categoria'],
+      precio:             Number(v.precio),
+      unidad:             v.unidad as Producto['unidad'],
+      cantidadDisponible: Number(v.cantidadDisponible),
+      municipio:          v.municipio!,
+      imagen:             v.imagen?.trim() || this.productoEditando()!.imagen,
+      fechaActualizacion: new Date().toISOString().split('T')[0]
+    });
+    this.mensajeEdicion.set('Producto actualizado con éxito.');
+    setTimeout(() => {
+      this.mensajeEdicion.set('');
+      this.productoEditando.set(null);
+      this.seccionActiva.set('mis-productos');
+    }, 1500);
+  }
+
+  cancelarEdicion(): void {
+    this.productoEditando.set(null);
+    this.mensajeEdicion.set('');
+    this.seccionActiva.set('mis-productos');
+  }
+
+  // ── Otras acciones ──
   eliminarProducto(id: number): void {
     if (confirm('¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.')) {
       this.productosService.eliminar(id);
@@ -85,19 +149,13 @@ export class DashboardAgricultor {
     this.productosService.actualizar(id, { activo: !activo });
   }
 
-  editarProducto(): void {
-    alert('Funcionalidad de edición próximamente');
-  }
-
   cambiarEstadoSolicitud(id: number, estado: EstadoSolicitud): void {
     this.solicitudesService.cambiarEstado(id, estado);
   }
 
   formatearPrecio(valor: number): string {
     return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
+      style: 'currency', currency: 'COP', maximumFractionDigits: 0
     }).format(valor);
   }
 
